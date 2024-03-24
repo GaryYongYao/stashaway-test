@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "securities",
+  "info": {
+    "singularName": "security",
+    "pluralName": "securities",
+    "displayName": "Security",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "ticker": {
+      "type": "string",
+      "unique": true
+    },
+    "assetClass": {
+      "type": "string"
+    },
+    "expenseRatio": {
+      "type": "decimal"
+    },
+    "inceptionYear": {
+      "type": "integer",
+      "max": 2024
+    }
+  }
+}

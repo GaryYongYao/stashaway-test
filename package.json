@@ -1,0 +1,15 @@
+{
+  "name": "stashaway-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "<doppelganger_tianjay@hotmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "scripts": {
+    "frontend": "yarn --cwd frontend/ dev",
+    "backend": "yarn --cwd backend/ develop",
+    "start": "concurrently \"yarn frontend\" \"yarn backend\""
+  }
+}
