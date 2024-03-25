@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
-import { FilterIcon, UpChevronIcon, DownChevronIcon } from './Icons';
+import { UpChevronIcon, DownChevronIcon, LeftChevronIcon, RightChevronIcon } from './Icons';
 import Popover from './Popover';
 
 type Column = {
@@ -17,9 +17,30 @@ type TableProps = {
   sortConfig: SortInfo;
   setSortConfig: Dispatch<SetStateAction<SortInfo>>;
   getTableData: (clearKey?: string) => void;
+  page: number;
+  setPage: Dispatch<SetStateAction<number>>;
+  pageSize: number;
+  setPageSize: Dispatch<SetStateAction<number>>;
+  total: number;
 };
 
-const Table: React.FC<TableProps> = ({ data, columns, sortConfig, setSortConfig, getTableData }) => {
+const Table: React.FC<TableProps> = ({
+  data,
+  columns,
+  sortConfig,
+  setSortConfig,
+  getTableData,
+  page,
+  setPage,
+  pageSize,
+  setPageSize,
+  total,
+}) => {
+
+  const handleChangeItemsPerPage = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setPageSize(parseInt(event.target.value));
+    setPage(1);
+  };
 
   const requestSort = (key: string) => {
     let direction = 'ASC';
@@ -77,6 +98,36 @@ const Table: React.FC<TableProps> = ({ data, columns, sortConfig, setSortConfig,
           )}
         </tbody>
       </table>
+      <div className="flex justify-between items-center mt-4">
+        <select value={pageSize} onChange={handleChangeItemsPerPage}>
+          {[3, 5, 10, 15, 20].map(size => (
+            <option key={size} value={size}>
+              {size}
+            </option>
+          ))}
+        </select>
+        <div>
+          {page !== 1 && (
+            <button
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+              className="me-3"
+            >
+              <LeftChevronIcon fillColor='#fff' />
+            </button>
+          )}
+          <span>{page} of {(total / pageSize).toFixed(0)} </span>
+          {page !== parseInt((total / pageSize).toFixed(0)) && (
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={page === parseInt((total / pageSize).toFixed(0)) }
+              className="ms-3"
+            >
+              <RightChevronIcon fillColor='#fff' />
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

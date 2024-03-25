@@ -63,3 +63,37 @@ export const DownChevronIcon: React.FC<SVGProps> = ({
     </svg>
   );
 };
+
+export const LeftChevronIcon: React.FC<SVGProps> = ({
+  width = '24',
+  height = '24',
+  fillColor = 'currentColor',
+}) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"  className="inline-block">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"
+        fill={fillColor}
+      />
+    </svg>
+  );
+};
+
+export const RightChevronIcon: React.FC<SVGProps> = ({
+  width = '24',
+  height = '24',
+  fillColor = 'currentColor',
+}) => {
+  return (
+    <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="inline-block">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12l-4.58 4.59z"
+        fill={fillColor}
+      />
+    </svg>
+  );
+};

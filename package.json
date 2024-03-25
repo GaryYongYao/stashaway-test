@@ -10,6 +10,7 @@
   "scripts": {
     "frontend": "yarn --cwd frontend/ dev",
     "backend": "yarn --cwd backend/ develop",
+    "install": "yarn --cwd frontend/ && yarn --cwd backend/",
     "start": "concurrently \"yarn frontend\" \"yarn backend\""
   }
 }

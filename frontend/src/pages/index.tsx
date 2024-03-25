@@ -8,11 +8,14 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const [data, setData] = useState<Security[]>([]);
-  const [sortConfig, setSortConfig] = useState<SortInfo>({ key: 'name', direction: 'ASC' });
+  const [sortConfig, setSortConfig] = useState<SortInfo>({ key: 'id', direction: 'ASC' });
   const [search, setSearch] = useState<string>('');
   const [assetClass, setAssetClass] = useState<string>('');
   const [year, setYear] = useState<[string, string]>(['', '']);
   const [ratio, setRatio] = useState<[string, string]>(['', '']);
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(2);
+  const [total, setTotal] = useState<number>(0);
 
   const columns = [
     { header: 'ID', accessor: 'id' },
@@ -105,66 +108,74 @@ export default function Home() {
   ];
 
   const getTableData = async (clearKey?: string) => {
+    try {
 
-    if (parseInt(year[0]) > parseInt(year[1])) {
-      alert('From year should be less than To year');
-      return;
+      if (parseInt(year[0]) > parseInt(year[1])) {
+        alert('From year should be less than To year');
+        return;
+      }
+  
+      if (parseFloat(ratio[0]) > parseFloat(ratio[1])) {
+        alert('From ratio should be less than To ratio');
+        return;
+      }
+  
+      const filters = [];
+  
+      if (search) filters.push({ field: 'name', operator: '$contains', value: search });
+      if (assetClass) filters.push({ field: 'assetClass', operator: '$contains', value: assetClass });
+      if (year[0]) filters.push({ field: 'inceptionYear', operator: '$gte', value: year[0] });
+      if (year[1]) filters.push({ field: 'inceptionYear', operator: '$lte', value: year[1] });
+      if (ratio[0]) filters.push({ field: 'expenseRatio', operator: '$gte', value: ratio[0] });
+      if (ratio[1]) filters.push({ field: 'expenseRatio', operator: '$lte', value: ratio[1] });
+  
+      let filterStrings = {};
+      
+      filters.forEach((f, i) => {
+        if (clearKey && f.field === clearKey) return;
+        filterStrings = {
+          ...filterStrings,
+          [`filters[$and][${i}][${f.field}][${f.operator}]`]: f.value
+        }
+      });
+  
+      const { data, meta } = await apiGet('/securities', {
+        params: {
+          ...filterStrings,
+          sort: `${sortConfig.key}:${sortConfig.direction}`,
+          'pagination[page]': page,
+          'pagination[pageSize]': pageSize
+        }
+      });
+
+      setTotal(meta.pagination.total);
+      
+      const items = data.map((item: SecurityResponse) => {
+        return {
+          id: item.id,
+          name: item.attributes.name,
+          ticker: item.attributes.ticker,
+          assetClass: item.attributes.assetClass,
+          inceptionYear: item.attributes.inceptionYear,
+          expenseRatio: item.attributes.expenseRatio
+        }
+      });
+  
+      setData(items);
+    } catch (error) {
+      alert(error);
     }
-
-    if (parseFloat(ratio[0]) > parseFloat(ratio[1])) {
-      alert('From ratio should be less than To ratio');
-      return;
-    }
-
-    const filters = [];
-
-    if (search) filters.push({ field: 'name', operator: '$contains', value: search });
-    if (assetClass) filters.push({ field: 'assetClass', operator: '$contains', value: assetClass });
-    if (year[0]) filters.push({ field: 'inceptionYear', operator: '$gte', value: year[0] });
-    if (year[1]) filters.push({ field: 'inceptionYear', operator: '$lte', value: year[1] });
-    if (ratio[0]) filters.push({ field: 'expenseRatio', operator: '$gte', value: ratio[0] });
-    if (ratio[1]) filters.push({ field: 'expenseRatio', operator: '$lte', value: ratio[1] });
-
-    let filterStrings = {};
-    
-    filters.forEach((f, i) => {
-      if (clearKey && f.field === clearKey) return;
-      filterStrings = {
-        ...filterStrings,
-        [`filters[$and][${i}][${f.field}][${f.operator}]`]: f.value
-      }
-    });
-
-    const { data, meta } = await apiGet('/securities', {
-      params: {
-        ...filterStrings,
-        sort: `${sortConfig.key}:${sortConfig.direction}`
-      }
-    });
-    
-    const items = data.map((item: SecurityResponse) => {
-      return {
-        id: item.id,
-        name: item.attributes.name,
-        ticker: item.attributes.ticker,
-        assetClass: item.attributes.assetClass,
-        inceptionYear: item.attributes.inceptionYear,
-        expenseRatio: item.attributes.expenseRatio
-      }
-    });
-
-    setData(items);
   }
 
   useEffect(() => {
     getTableData();
-  }, [sortConfig])
+  }, [sortConfig, page, pageSize])
   
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
     >
-      <div className="z-10 max-w-5xl w-full text-sm">
+      <div className="z-10 w-full text-sm">
         <input
           type="text"
           value={search}
@@ -183,6 +194,11 @@ export default function Home() {
           sortConfig={sortConfig}
           setSortConfig={setSortConfig}
           getTableData={getTableData}
+          page={page}
+          setPage={setPage}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
+          total={total}
         />
       </div>
     </main>

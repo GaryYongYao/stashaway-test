@@ -23,7 +23,7 @@ export const request = async (url: string, body: any = {}, type = 'GET') => {
     return data
   }
   catch(err: Error | any) {
-    throw new Error(`${err.response.error.status}: ${err.response.error.message}`);
+    throw new Error(`${err.code}: ${err.message}`);
   }
 };
 
